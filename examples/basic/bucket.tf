@@ -36,6 +36,12 @@ resource "aws_s3_bucket_lifecycle_configuration" "bucket" {
   rule {
     id     = "7d multi-part"
     status = "Enabled"
+    # getting a message about missing filter or prefix in rule
+    # might be https://github.com/hashicorp/terraform-provider-aws/issues/41710 ??
+    # for now set an empty filter (which is problematic too as per documentation)
+    # but should be fine for testing
+    # -> should update aws module and check again without
+    filter {}
     abort_incomplete_multipart_upload {
       days_after_initiation = 7
     }
