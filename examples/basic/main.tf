@@ -1,7 +1,17 @@
+variable "aws_region" {
+  type    = string
+  default = "us-east-1"
+}
+
+variable "kubernetes_version" {
+  type = string
+  default = "1.34"
+}
+
 locals {
   name = "ex-warpstream-eks-${basename(path.cwd)}"
-
-  region = "us-east-1"
+  version = var.kubernetes_version
+  region = var.aws_region
 }
 
 variable "warpstream_virtual_cluster_id" {
@@ -82,14 +92,10 @@ module "endpoints" {
       route_table_ids = module.vpc.private_route_table_ids
       tags            = { Name = local.name }
     },
-    # Used for S3 Express for lower latency configurations
-    # Ref: https://docs.warpstream.com/warpstream/byoc/advanced-agent-deployment-options/low-latency-clusters
-    s3express = {
-      service         = "s3express"
-      service_type    = "Gateway"
-      route_table_ids = module.vpc.private_route_table_ids
-      tags            = { Name = local.name }
-    }
+    # If you need a special low-latency S3 endpoint (S3 Express),
+    # create it outside this generic example or add the correct
+    # provider/service name here. Default public S3 gateway endpoint
+    # is provided above.
   }
 }
 
@@ -100,7 +106,7 @@ module "eks" {
   version = "20.37.1"
 
   cluster_name                   = local.name
-  cluster_version                = "1.31"
+  cluster_version                = local.version
   cluster_endpoint_public_access = true
 
   enable_cluster_creator_admin_permissions = true
