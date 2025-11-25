@@ -111,13 +111,24 @@ module "eks" {
 
   enable_cluster_creator_admin_permissions = true
 
-  cluster_compute_config = {
-    enabled    = true
-    node_pools = ["general-purpose", "system"]
-  }
-
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
+
+  eks_managed_node_group_defaults = {
+    instance_types = ["m7a.xlarge"]
+  }
+
+  eks_managed_node_groups = {
+    warpstream_agent_nodes = {
+      min_size     = 3
+      max_size     = 6
+      desired_size = 3
+
+      // m7(a/i).2xlarge = 8 vCPU + 32GB RAM
+      instance_types = ["m7a.2xlarge", "m7i.2xlarge"]
+      capacity_type  = "ON_DEMAND"
+    }
+  }
 }
 
 provider "helm" {

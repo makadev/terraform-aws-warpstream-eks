@@ -9,6 +9,11 @@ resource "helm_release" "warpstream-agent" {
   chart      = "warpstream-agent"
   version    = var.helm_chart_version
 
+  # Give Helm more time for upgrades and enable wait/atomic to rollback on failure
+  timeout = 600
+  wait    = true
+  atomic  = true
+
   namespace = var.kubernetes_namespace
 
   set_sensitive = [{
